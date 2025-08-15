@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bike Rental Prediction</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #1e1e2f;
+            color: #fff;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            margin: 20px;
+            color: #4db8ff;
+        }
+        form {
+            background: #2a2a40;
+            border-radius: 15px;
+            padding: 20px;
+            max-width: 600px;
+            margin: auto;
+            box-shadow: 0px 0px 15px rgba(0,0,0,0.5);
+        }
+        label {
+            display: block;
+            margin: 15px 0 5px;
+            text-align: left;
+        }
+        select, input[type=range] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: none;
+            background-color: #fff;
+            color: #000;
+            font-size: 1rem;
+        }
+        select:focus, input[type=range]:focus {
+            outline: none;
+            box-shadow: 0px 0px 5px #4db8ff;
+        }
+        .slider-value {
+            font-size: 0.9rem;
+            color: #ccc;
+            margin-bottom: 10px;
+            text-align: right;
+        }
+        button {
+            background: #4db8ff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            margin-top: 15px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #3399cc;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #4db8ff;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚲 Bike Rental Prediction</h1>
+    <form id="predictionForm">
+        <label for="season">Season</label>
+        <select id="season">
+            <option value="1">Winter</option>
+            <option value="2">Spring</option>
+            <option value="3">Summer</option>
+            <option value="4">Fall</option>
+        </select>
+
+        <label for="yr">Year</label>
+        <select id="yr">
+            <option value="0">2011</option>
+            <option value="1">2012</option>
+        </select>
+
+        <label for="mnth">Month</label>
+        <select id="mnth">
+            <option value="1">January</option>
+            <option value="2">February</option>
+            <option value="3">March</option>
+            <option value="4">April</option>
+            <option value="5">May</option>
+            <option value="6">June</option>
+            <option value="7">July</option>
+            <option value="8">August</option>
+            <option value="9">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+        </select>
+
+        <label for="hr">Hour</label>
+        <select id="hr">
+            <!-- Generate options 0–23 -->
+            <script>
+                for (let i = 0; i < 24; i++) {
+                    document.write(`<option value="${i}">${i}:00</option>`);
+                }
+            </script>
+        </select>
+
+        <label for="holiday">Holiday</label>
+        <select id="holiday">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+        </select>
+
+        <label for="weekday">Weekday</label>
+        <select id="weekday">
+            <option value="0">Sunday</option>
+            <option value="1">Monday</option>
+            <option value="2">Tuesday</option>
+            <option value="3">Wednesday</option>
+            <option value="4">Thursday</option>
+            <option value="5">Friday</option>
+            <option value="6">Saturday</option>
+        </select>
+
+        <label for="workingday">Working Day</label>
+        <select id="workingday">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+        </select>
+
+        <label for="weathersit">Weather Situation</label>
+        <select id="weathersit">
+            <option value="1">Clear</option>
+            <option value="2">Mist</option>
+            <option value="3">Light Snow/Rain</option>
+            <option value="4">Heavy Rain/Ice</option>
+        </select>
+
+        <label>Temperature</label>
+        <input type="range" min="0" max="1" step="0.01" id="temp" oninput="updateValue('tempVal', this.value)">
+        <div class="slider-value" id="tempVal">0</div>
+
+        <label>Feels Like Temp</label>
+        <input type="range" min="0" max="1" step="0.01" id="atemp" oninput="updateValue('atempVal', this.value)">
+        <div class="slider-value" id="atempVal">0</div>
+
+        <label>Humidity</label>
+        <input type="range" min="0" max="1" step="0.01" id="hum" oninput="updateValue('humVal', this.value)">
+        <div class="slider-value" id="humVal">0</div>
+
+        <label>Windspeed</label>
+        <input type="range" min="0" max="1" step="0.01" id="windspeed" oninput="updateValue('windVal', this.value)">
+        <div class="slider-value" id="windVal">0</div>
+
+        <button type="submit">Predict</button>
+        <div id="result"></div>
+    </form>
+
+    <script>
+        function updateValue(spanId, val) {
+            document.getElementById(spanId).innerText = val;
+        }
+
+        document.getElementById("predictionForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            let formData = {
+                season: parseInt(document.getElementById("season").value),
+                yr: parseInt(document.getElementById("yr").value),
+                mnth: parseInt(document.getElementById("mnth").value),
+                hr: parseInt(document.getElementById("hr").value),
+                holiday: parseInt(document.getElementById("holiday").value),
+                weekday: parseInt(document.getElementById("weekday").value),
+                workingday: parseInt(document.getElementById("workingday").value),
+                weathersit: parseInt(document.getElementById("weathersit").value),
+                temp: parseFloat(document.getElementById("temp").value),
+                atemp: parseFloat(document.getElementById("atemp").value),
+                hum: parseFloat(document.getElementById("hum").value),
+                windspeed: parseFloat(document.getElementById("windspeed").value)
+            };
+
+            fetch("/predict", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(formData)
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("result").innerText = `🚲 Predicted Rentals: ${data.prediction}`;
+            });
+        });
+    </script>
+</body>
+</html>
